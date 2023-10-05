@@ -16,6 +16,8 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
+        $query->with('category');
+
         $data = $query->get();
 
         return response()->json($data);

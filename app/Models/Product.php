@@ -15,4 +15,8 @@ class Product extends Model
         'special_price',
         'is_active',
     ];
+
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
 }
