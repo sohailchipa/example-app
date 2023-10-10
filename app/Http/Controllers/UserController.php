@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SigninRequest;
+use App\Http\Requests\SignupRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -89,5 +93,46 @@ class UserController extends Controller
         return response()->json([
             'message' => $message
         ], 200);
+    }
+
+    public function signup(SignupRequest $request)
+    {
+        $input = $request->all();
+
+        if (isset($input['password']) && $input['password']) {
+            $input['password'] = Hash::make($input['password']);
+        } else {
+            $input['password'] = Hash::make(Str::random(10));
+        }
+
+        User::create($input);
+
+        $message = "User registered successfully!";
+
+        return response()->json([
+            'message' => $message
+        ], 200);
+    }
+
+    public function signin(SigninRequest $request)
+    {
+        $user = User::where('email', $request['email'])->first();
+
+        if ($user) {
+
+            if (!Hash::check(request()->password, $user->password)) {
+                $message = __('response.errors.invalid_username_password');
+                return response()->notFound($message);
+            }
+          
+            $response['accessToken'] = $user->createToken('userToken')->plainTextToken;
+            $response['message'] = 'Login Successfully';
+          
+            $response['user'] = $user;
+            return response()->json($response);
+        } else {
+            $response['message'] = 'error';
+            return response()->json($response,400);
+        }
     }
 }

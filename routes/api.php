@@ -28,7 +28,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::put('users/{user}', [UserController::class, 'update']);
 // Route::delete('users/{user}', [UserController::class, 'destroy']);
 
+Route::group([
+    'middleware' => 'auth:api'
+], function () {
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('products', ProductController::class);
+});
 
-Route::apiResource('users', UserController::class);
-Route::apiResource('categories', CategoryController::class);
-Route::apiResource('products', ProductController::class);
+Route::post('signup', [UserController::class, 'signup']);
+Route::post('signin', [UserController::class, 'signin']);
